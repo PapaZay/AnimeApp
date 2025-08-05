@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+app = FastAPI(title="AnimeApp API")
 
 @app.get("/")
 def running_message():
