@@ -1,16 +1,30 @@
 import { router } from "expo-router";
-import React from "react";
+import React, {useState} from "react";
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { supabase } from "../../lib/supabase";
 
 export default function SignIn() {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const handleLogin = () => {
         // TODO: Add your email/password authentication logic
         router.push("/home");
     };
 
-    const handleGoogleLogin = () => {
+    const handleGoogleLogin = async () => {
         // TODO: Add your Google OAuth flow
         console.log("Sign in with Google");
+        setLoading(true);
+        setError('');
+        const {error} = await supabase.auth.signInWithOAuth({
+            provider: "google",
+
+        })
+        if (error) {
+            setError(error.message)
+            setLoading(false);
+            return;
+        }
     };
 
     {/* Forgot Password */}
