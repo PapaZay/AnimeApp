@@ -1,70 +1,104 @@
 import { router } from "expo-router";
-import React from "react";
+import React, {useState} from "react";
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { supabase } from "../../lib/supabase";
 
 export default function SignIn() {
-    const handleLogin = () => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleLogin = async () => {
         // TODO: Add your email/password authentication logic
+        setLoading(true);
+        setError('');
+        const {error} = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+        if (error) {
+            setError(error.message)
+            setLoading(false);
+            return;
+        }
         router.push("/home");
     };
 
-    const handleGoogleLogin = () => {
+    const handleGoogleLogin = async () => {
         // TODO: Add your Google OAuth flow
         console.log("Sign in with Google");
+        setLoading(true);
+        setError('');
+        const {error} = await supabase.auth.signInWithOAuth({
+            provider: "google",
+        });
+        if (error) {
+            setError(error.message)
+            setLoading(false);
+            return;
+        }
     };
 
-    {/* Forgot Password */}
+
 
 
     return (
         <View style={styles.container}>
-        <Text style={styles.title}>Sign in to your account</Text>
+            <Text style={styles.title}>Sign in to your account</Text>
 
-        {/* Email Field */}
-        <TextInput
-            placeholder="Email address"
-            placeholderTextColor="#aaa"
-            keyboardType="email-address"
-            style={styles.input}
-            autoCapitalize="none"
-        />
-
-        {/* Password Field */}
-        <TextInput
-            placeholder="Password"
-            placeholderTextColor="#aaa"
-            secureTextEntry
-            style={styles.input}
-        />
-
-        {/* Sign In Button */}
-        <TouchableOpacity onPress={handleLogin} style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Sign In</Text>
-        </TouchableOpacity>
-
-        {/* OAuth Divider */}
-        <View style={styles.dividerContainer}>
-            <View style={styles.divider} />
-            <Text style={styles.dividerText}>OR</Text>
-            <View style={styles.divider} />
-        </View>
-
-        {/* Google Button */}
-        <TouchableOpacity onPress={handleGoogleLogin} style={styles.googleButton}>
-            <Image
-            source={{
-                uri: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_%22G%22_Logo.svg",
-            }}
-            style={styles.googleLogo}
+            {/* Email Field */}
+            <TextInput
+                value={email} // added email value to textinput
+                onChangeText={setEmail} // added onChangeText to textinput
+                placeholder="Email address"
+                placeholderTextColor="#aaa"
+                keyboardType="email-address"
+                style={styles.input}
+                autoCapitalize="none"
             />
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-        </TouchableOpacity>
 
-        {/* Forgot Password */}
+            {/* Password Field */}
+            <TextInput
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Password"
+                placeholderTextColor="#aaa"
+                secureTextEntry
+                style={styles.input}
+            />
+
+            {/* Error Message, the formatting is messed up for me, might have to fix that */}
+            {error ? <Text style={{color: '#ff4444', marginBottom: 16, textAlign: 'center'}}>{error}</Text> : null}
+
+            {/* Sign In Button */}
+            <TouchableOpacity onPress={handleLogin} style={styles.primaryButton} disabled={loading}>
+                <Text style={styles.primaryButtonText}>Sign In</Text>
+            </TouchableOpacity>
+
+            {/* OAuth Divider */}
+            <View style={styles.dividerContainer}>
+                <View style={styles.divider}/>
+                <Text style={styles.dividerText}>OR</Text>
+                <View style={styles.divider}/>
+            </View>
+
+            {/* Google Button */}
+            <TouchableOpacity onPress={handleGoogleLogin} style={styles.googleButton} disabled={loading}>
+                <Image
+                    source={{
+                        uri: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_%22G%22_Logo.svg",
+                    }}
+                    style={styles.googleLogo}
+                />
+                <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </TouchableOpacity>
+
+            {/* Forgot Password */}
 
         </View>
     );
-    }
+}
 
     const styles = StyleSheet.create({
     container: {
