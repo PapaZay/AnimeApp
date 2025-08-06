@@ -13,7 +13,7 @@ export default function SignIn() {
         // TODO: Add your email/password authentication logic
         setLoading(true);
         setError('');
-        const { error } = await supabase.auth.signInWithPassword({
+        const {error} = await supabase.auth.signInWithPassword({
             email,
             password,
         });
@@ -40,65 +40,65 @@ export default function SignIn() {
         }
     };
 
-    {/* Forgot Password */}
+
 
 
     return (
         <View style={styles.container}>
-        <Text style={styles.title}>Sign in to your account</Text>
+            <Text style={styles.title}>Sign in to your account</Text>
 
-        {/* Email Field */}
-        <TextInput
-            value={email} // added email value to textinput
-            onChangeText={setEmail} // added onChangeText to textinput
-            placeholder="Email address"
-            placeholderTextColor="#aaa"
-            keyboardType="email-address"
-            style={styles.input}
-            autoCapitalize="none"
-        />
+            {/* Email Field */}
+            <TextInput
+                value={email} // added email value to textinput
+                onChangeText={setEmail} // added onChangeText to textinput
+                placeholder="Email address"
+                placeholderTextColor="#aaa"
+                keyboardType="email-address"
+                style={styles.input}
+                autoCapitalize="none"
+            />
 
-        {/* Password Field */}
-        <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Password"
-            placeholderTextColor="#aaa"
-            secureTextEntry
-            style={styles.input}
-        />
+            {/* Password Field */}
+            <TextInput
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Password"
+                placeholderTextColor="#aaa"
+                secureTextEntry
+                style={styles.input}
+            />
 
             {/* Error Message, the formatting is messed up for me, might have to fix that */}
             {error ? <Text style={{color: '#ff4444', marginBottom: 16, textAlign: 'center'}}>{error}</Text> : null}
 
-        {/* Sign In Button */}
-        <TouchableOpacity onPress={handleLogin} style={styles.primaryButton} disabled={loading}>
-            <Text style={styles.primaryButtonText}>Sign In</Text>
-        </TouchableOpacity>
+            {/* Sign In Button */}
+            <TouchableOpacity onPress={handleLogin} style={styles.primaryButton} disabled={loading}>
+                <Text style={styles.primaryButtonText}>Sign In</Text>
+            </TouchableOpacity>
 
-        {/* OAuth Divider */}
-        <View style={styles.dividerContainer}>
-            <View style={styles.divider} />
-            <Text style={styles.dividerText}>OR</Text>
-            <View style={styles.divider} />
-        </View>
+            {/* OAuth Divider */}
+            <View style={styles.dividerContainer}>
+                <View style={styles.divider}/>
+                <Text style={styles.dividerText}>OR</Text>
+                <View style={styles.divider}/>
+            </View>
 
-        {/* Google Button */}
-        <TouchableOpacity onPress={handleGoogleLogin} style={styles.googleButton} disabled={loading}>
-            <Image
-            source={{
-                uri: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_%22G%22_Logo.svg",
-            }}
-            style={styles.googleLogo}
-            />
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-        </TouchableOpacity>
+            {/* Google Button */}
+            <TouchableOpacity onPress={handleGoogleLogin} style={styles.googleButton} disabled={loading}>
+                <Image
+                    source={{
+                        uri: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_%22G%22_Logo.svg",
+                    }}
+                    style={styles.googleLogo}
+                />
+                <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </TouchableOpacity>
 
-        {/* Forgot Password */}
+            {/* Forgot Password */}
 
         </View>
     );
-    }
+}
 
     const styles = StyleSheet.create({
     container: {
