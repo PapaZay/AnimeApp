@@ -6,8 +6,22 @@ import { supabase } from "../../lib/supabase";
 export default function SignIn() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const handleLogin = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleLogin = async () => {
         // TODO: Add your email/password authentication logic
+        setLoading(true);
+        setError('');
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+        if (error) {
+            setError(error.message)
+            setLoading(false);
+            return;
+        }
         router.push("/home");
     };
 
@@ -18,8 +32,7 @@ export default function SignIn() {
         setError('');
         const {error} = await supabase.auth.signInWithOAuth({
             provider: "google",
-
-        })
+        });
         if (error) {
             setError(error.message)
             setLoading(false);
@@ -36,6 +49,8 @@ export default function SignIn() {
 
         {/* Email Field */}
         <TextInput
+            value={email} // added email value to textinput
+            onChangeText={setEmail} // added onChangeText to textinput
             placeholder="Email address"
             placeholderTextColor="#aaa"
             keyboardType="email-address"
@@ -45,14 +60,19 @@ export default function SignIn() {
 
         {/* Password Field */}
         <TextInput
+            value={password}
+            onChangeText={setPassword}
             placeholder="Password"
             placeholderTextColor="#aaa"
             secureTextEntry
             style={styles.input}
         />
 
+            {/* Error Message, the formatting is messed up for me, might have to fix that */}
+            {error ? <Text style={{color: '#ff4444', marginBottom: 16, textAlign: 'center'}}>{error}</Text> : null}
+
         {/* Sign In Button */}
-        <TouchableOpacity onPress={handleLogin} style={styles.primaryButton}>
+        <TouchableOpacity onPress={handleLogin} style={styles.primaryButton} disabled={loading}>
             <Text style={styles.primaryButtonText}>Sign In</Text>
         </TouchableOpacity>
 
@@ -64,7 +84,7 @@ export default function SignIn() {
         </View>
 
         {/* Google Button */}
-        <TouchableOpacity onPress={handleGoogleLogin} style={styles.googleButton}>
+        <TouchableOpacity onPress={handleGoogleLogin} style={styles.googleButton} disabled={loading}>
             <Image
             source={{
                 uri: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_%22G%22_Logo.svg",
