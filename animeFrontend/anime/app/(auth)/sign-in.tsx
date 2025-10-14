@@ -1,7 +1,13 @@
 import { router } from "expo-router";
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { supabase } from "../../lib/supabase";
+import * as WebBrowser from "expo-web-browser";
+import * as Linking from "expo-linking";
+import { makeRedirectUri } from "expo-auth-session";
+import * as QueryParams from "expo-auth-session/build/QueryParams";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function SignIn() {
     const [loading, setLoading] = useState(false);
@@ -9,14 +15,61 @@ export default function SignIn() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const url = Linking.useURL();
+
+    useEffect(() => {
+        if (url) {
+            createSessionFromUrl(url);
+        }
+    }, [url]);
+
+    const createSessionFromUrl = async (url: string) => {
+        const {params, errorCode} = QueryParams.getQueryParams(url);
+
+        if (errorCode) {
+            setError(errorCode);
+            setLoading(false);
+            return;
+        }
+
+        const {access_token, refresh_token } = params;
+
+        if (!access_token) {
+            return;
+        }
+
+        const {data, error} = await supabase.auth.setSession({
+            access_token,
+            refresh_token,
+        });
+
+        if (error) {
+            setError(error.message);
+            setLoading(false);
+            return;
+        }
+
+        if (data.session) {
+            router.push("/home");
+        }
+    }
+
+
     const handleLogin = async () => {
         // TODO: Add your email/password authentication logic
+        if (!email || !password) {
+            setError("Please enter an email and password");
+            return;
+        }
+
         setLoading(true);
         setError('');
+
         const {error} = await supabase.auth.signInWithPassword({
             email,
             password,
         });
+
         if (error) {
             setError(error.message)
             setLoading(false);
@@ -30,14 +83,33 @@ export default function SignIn() {
         console.log("Sign in with Google");
         setLoading(true);
         setError('');
-        const {error} = await supabase.auth.signInWithOAuth({
+
+        const redirectTo = makeRedirectUri();
+
+        const {data, error} = await supabase.auth.signInWithOAuth({
             provider: "google",
+            options: {
+                redirectTo,
+                skipBrowserRedirect: true,
+            }
         });
         if (error) {
             setError(error.message)
             setLoading(false);
             return;
         }
+
+        const res = await WebBrowser.openAuthSessionAsync(
+            data?.url ?? "",
+            redirectTo
+        );
+
+        if (res.type === "success") {
+            const {url} = res;
+            await createSessionFromUrl(url);
+        }
+
+        setLoading(false);
     };
 
 
@@ -73,7 +145,7 @@ export default function SignIn() {
 
             {/* Sign In Button */}
             <TouchableOpacity onPress={handleLogin} style={styles.primaryButton} disabled={loading}>
-                <Text style={styles.primaryButtonText}>Sign In</Text>
+                <Text style={styles.primaryButtonText}>{loading ? 'Signing in...' : 'Sign In'}</Text>
             </TouchableOpacity>
 
             {/* OAuth Divider */}
