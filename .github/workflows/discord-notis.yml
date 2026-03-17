@@ -20,14 +20,4 @@ jobs:
                     REPO="${{github.repository}}"
                     URL="${{github.event.head_commit.url}}"
 
-                    curl -s -X POST "$DISCORD_WEBHOOK" \                                                                                                                            
-                    -H "Content-Type: application/json" \                                                                                                                         
-                    -d "{                                                                                                                                                         
-                    \"embeds\": [{                                                                                                                                            
-                    \"title\": \"New push to \`$BRANCH\`\",                                                                                                                   
-                    \"description\": \"\`\`\`$COMMIT_MSG\`\`\`\",                                                                                                             
-                    \"url\": \"$URL\",                                                                                                                                        
-                    \"color\": 5814783,                                                                                                                                       
-                    \"footer\": { \"text\": \"$REPO • $AUTHOR\" }                                                                                                             
-                        }]                                                                                                                                                          
-                        }"  
+                    curl -s -X POST "$DISCORD_WEBHOOK" -H "Content-Type: application/json" -d "{\"content\": \"@here\", \"embeds\": [{\"title\": \"New push to \`$BRANCH\`\", \"description\": \"\`\`\`$COMMIT_MSG\`\`\`\", \"url\": \"$URL\", \"color\": 5814783, \"footer\": {\"text\": \"$REPO • $AUTHOR\"}}]}"
